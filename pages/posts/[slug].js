@@ -55,12 +55,18 @@ export default function Post({ post, morePosts, preview }) {
 
 export async function getStaticProps({ params, preview = false }) {
   const data = await getPostAndMorePosts(params.slug, preview)
+  console.log(data)
+  if (!data.post) {
+    return {
+      notFound: true,
+    }  
+  }
 
   return {
     props: {
       preview,
-      post: data?.post ?? null,
-      morePosts: data?.morePosts ?? null,
+      post: data.post,
+      morePosts: data.morePosts,
     },
   }
 }
@@ -68,7 +74,7 @@ export async function getStaticProps({ params, preview = false }) {
 export async function getStaticPaths() {
   const allPosts = await getAllPostsWithSlug()
   return {
-    paths: allPosts?.map(({ slug }) => `/posts/${slug}`) ?? [],
+    paths: allPosts?.map(({ slug }) => ({ params: { slug: `/posts/${slug}` }})) ?? [],
     fallback: true,
   }
 }
